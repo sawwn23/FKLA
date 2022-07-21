@@ -73,10 +73,15 @@ const Login = () => {
             {loading ? <SyncOutlined spin /> : 'Submit'}
           </button>
         </form>
-        <p className="text-center p-3">
+        <p className="text-center pt-3">
           Not Yet registered?{' '}
           <Link href="/register">
             <a>Login</a>
+          </Link>
+        </p>
+        <p className="text-center">
+          <Link href="/forgot-password">
+            <a className="text-danger">Forgot Password</a>
           </Link>
         </p>
       </div>
