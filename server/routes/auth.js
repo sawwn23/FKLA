@@ -3,7 +3,7 @@ import express from 'express'
 const router = express.Router()
 
 // middleware
-import { requreSignin } from '../middlewares'
+import { requireSignin } from '../middlewares'
 
 import {
   register,
@@ -16,7 +16,7 @@ import {
 router.post('/register', register)
 router.post('/login', login)
 router.get('/logout', logout)
-router.get('/current-user', requreSignin, currentUser)
+router.get('/current-user', requireSignin, currentUser)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password', resetPassword)
 

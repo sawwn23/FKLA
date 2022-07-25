@@ -1,6 +1,6 @@
 import { expressjwt } from 'express-jwt'
 
-export const requreSignin = expressjwt({
+export const requireSignin = expressjwt({
   getToken: (req, res) => req.cookies.token,
   secret: process.env.JWT_SECRET,
   algorithms: ['HS256'],

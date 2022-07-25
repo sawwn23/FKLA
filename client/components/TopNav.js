@@ -7,11 +7,14 @@ import {
   LoginOutlined,
   LogoutOutlined,
   UserAddOutlined,
+  CarryOutOutlined,
+  TeamOutlined,
 } from '@ant-design/icons'
 import { Context } from '../context'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
+import UserNav from './nav/UserNav'
 
 const { Item, SubMenu, ItemGroup } = Menu
 
@@ -47,6 +50,27 @@ const TopNav = () => {
         </Link>
       </Item>
 
+      {user && user.role.includes('Instructor') ? (
+        <Item
+          key="/instructor/coruse/create"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<CarryOutOutlined />}
+        >
+          <Link href="/instructor/coruse/create">
+            <a>Create Course</a>
+          </Link>
+        </Item>
+      ) : (
+        <Item
+          key="/user/become-instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+        >
+          <Link href="/user/become-instructor">
+            <a>Register As Instructor</a>
+          </Link>
+        </Item>
+      )}
       {user === null && (
         <>
           <Item
