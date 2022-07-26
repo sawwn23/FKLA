@@ -2,7 +2,14 @@
   border-radius: 0px;
 }
 
-.container-fluid {
+/* .container-fluid {
   background-image: linear-gradient(to right, #007bff, #000);
   color: #fff;
+} */
+
+.jumbotron {
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background-color: #e9ecef;
+  border-radius: .3rem;
 }

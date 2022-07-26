@@ -1,18 +1,23 @@
 import { useContext, useEffect } from 'react'
 import { Context } from '../../context'
-import { SyncOutlined } from '@ant-design/icons'
+import { SyncOutlined, WindowsFilled } from '@ant-design/icons'
 import axios from 'axios'
 
 const StripeCallback = () => {
   const {
     state: { user },
+    dispatch,
   } = useContext(Context)
 
   useEffect(() => {
     if (user) {
       console.log(user)
       axios.post('/api/get-account-status').then((res) => {
-        console.log(res)
+        dispatch({
+          type: 'LOGIN',
+          payoad: res.data,
+        })
+        window.localStorage.setItem('user', JSON.stringify(res.data))
         window.location.href = '/instructor'
       })
     }
