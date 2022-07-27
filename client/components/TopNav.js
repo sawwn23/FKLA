@@ -39,7 +39,7 @@ const TopNav = () => {
   }
 
   return (
-    <Menu mode="horizontal" selectedKeys={[current]} className='mb-2'>
+    <Menu mode="horizontal" selectedKeys={[current]} className="mb-2">
       <Item
         key="/"
         onClick={(e) => setCurrent(e.key)}
@@ -52,11 +52,11 @@ const TopNav = () => {
 
       {user && user.role.includes('Instructor') ? (
         <Item
-          key="/instructor/coruse/create"
+          key="/instructor/course/create"
           onClick={(e) => setCurrent(e.key)}
           icon={<CarryOutOutlined />}
         >
-          <Link href="/instructor/coruse/create">
+          <Link href="/instructor/course/create">
             <a>Create Course</a>
           </Link>
         </Item>
