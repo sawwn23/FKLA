@@ -11,6 +11,7 @@ const CourseCreateForm = ({
   preview,
   uploadButtonText,
   handleImageRemove,
+  editPage = false,
 }) => {
   const children = []
   for (let i = 9.99; i <= 50.99; i++) {
@@ -101,6 +102,10 @@ const CourseCreateForm = ({
           <Badge count="X" onClick={handleImageRemove} className="pointer">
             <Avatar width={200} src={preview} />
           </Badge>
+        )}
+
+        {editPage && values.image && (
+          <Avatar width={200} src={values.image.Location} />
         )}
       </div>
 

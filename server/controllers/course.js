@@ -2,6 +2,7 @@ import AWS from 'aws-sdk'
 import { nanoid } from 'nanoid'
 import Course from '../models/course'
 import slugify from 'slugify'
+import { readFileSync } from 'fs'
 
 const awsConfig = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -101,4 +102,124 @@ export const read = async (req, res) => {
   } catch (err) {
     console.log(err)
   }
+}
+
+export const uploadVideo = async (req, res) => {
+  try {
+    if (req.auth._id != req.params.instructorId) {
+      return res.status(400).send('Unauthorized')
+    }
+    const { video } = req.files
+    // console.log(video);
+    if (!video) return res.status(400).send('No video')
+
+    // video params
+    const params = {
+      Bucket: 'fkla-bucket',
+      Key: `${nanoid()}.${video.type.split('/')[1]}`,
+      Body: readFileSync(video.path),
+      ACL: 'public-read',
+      ContentType: video.type,
+    }
+
+    // upload to s3
+    S3.upload(params, (err, data) => {
+      if (err) {
+        console.log(err)
+        res.sendStatus(400)
+      }
+      console.log(data)
+      res.send(data)
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const removeVideo = async (req, res) => {
+  try {
+    if (req.auth._id != req.params.instructorId) {
+      return res.status(400).send('Unauthorized')
+    }
+    const { Bucket, Key } = req.body
+
+    // video params
+    const params = {
+      Bucket,
+      Key,
+    }
+
+    // delete from s3
+    S3.deleteObject(params, (err, data) => {
+      if (err) {
+        console.log(err)
+        res.sendStatus(400)
+      }
+      console.log(data)
+      res.send({ ok: true })
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const addLesson = async (req, res) => {
+  try {
+    console.log(req)
+    const { slug, instructorId } = req.params
+    const { title, content, video } = req.body
+
+    if (req.auth._id != instructorId) {
+      return res.status(400).send('Unauthorized')
+    }
+
+    const updated = await Course.findOneAndUpdate(
+      { slug },
+      {
+        $push: { lessons: { title, content, video, slug: slugify(title) } },
+      },
+      { new: true }
+    )
+      .populate('instructor', '_id name')
+      .exec()
+    res.json(updated)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).send('Add lesson failed')
+  }
+}
+
+export const update = async (req, res) => {
+  try {
+    const { slug } = req.params
+    // console.log(slug);
+    const course = await Course.findOne({ slug }).exec()
+    // console.log("COURSE FOUND => ", course);
+    if (req.auth._id != course.instructor) {
+      return res.status(400).send('Unauthorized')
+    }
+
+    const updated = await Course.findOneAndUpdate({ slug }, req.body, {
+      new: true,
+    }).exec()
+
+    res.json(updated)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).send(err.message)
+  }
+}
+
+export const removeLesson = async (req, res) => {
+  const { slug, lessonId } = req.params
+  const course = await Course.findOne({ slug }).exec()
+  if (req.auth._id != course.instructor) {
+    return res.status(400).send('Unauthorized')
+  }
+
+  const deletedCourse = await Course.findByIdAndUpdate(course._id, {
+    $pull: { lessons: { _id: lessonId } },
+  }).exec()
+
+  res.json({ ok: true })
 }
