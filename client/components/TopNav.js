@@ -74,7 +74,7 @@ const TopNav = () => {
       {user === null && (
         <>
           <Item
-            className="float-right"
+            className="float-right ml-auto"
             key="/register"
             onClick={(e) => setCurrent(e.key)}
             icon={<UserAddOutlined />}
