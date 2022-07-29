@@ -14,7 +14,6 @@ import { Context } from '../context'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
-import UserNav from './nav/UserNav'
 
 const { Item, SubMenu, ItemGroup } = Menu
 
@@ -50,7 +49,7 @@ const TopNav = () => {
         </Link>
       </Item>
 
-      {user && user.role.includes('Instructor') ? (
+      {user && user.role && user.role.includes('Instructor') ? (
         <Item
           key="/instructor/course/create"
           onClick={(e) => setCurrent(e.key)}
@@ -67,7 +66,7 @@ const TopNav = () => {
           icon={<TeamOutlined />}
         >
           <Link href="/user/become-instructor">
-            <a>Register As Instructor</a>
+            <a>Become Instructor</a>
           </Link>
         </Item>
       )}
@@ -75,16 +74,7 @@ const TopNav = () => {
       {user === null && (
         <>
           <Item
-            key="/login"
-            onClick={(e) => setCurrent(e.key)}
-            icon={<LoginOutlined />}
-          >
-            <Link href="/login">
-              <a>Login</a>
-            </Link>
-          </Item>
-
-          <Item
+            className="float-right"
             key="/register"
             onClick={(e) => setCurrent(e.key)}
             icon={<UserAddOutlined />}
@@ -93,15 +83,25 @@ const TopNav = () => {
               <a>Register</a>
             </Link>
           </Item>
+
+          <Item
+            className="float-right"
+            key="/login"
+            onClick={(e) => setCurrent(e.key)}
+            icon={<LoginOutlined />}
+          >
+            <Link href="/login">
+              <a>Login</a>
+            </Link>
+          </Item>
         </>
       )}
 
       {user !== null && (
         <SubMenu
-          key="1111"
           icon={<CoffeeOutlined />}
           title={user && user.name}
-          className="ms-auto float-end"
+          className="float-right ml-auto"
         >
           <ItemGroup>
             <Item key="/user">
@@ -109,18 +109,17 @@ const TopNav = () => {
                 <a>Dashboard</a>
               </Link>
             </Item>
-            <Item key="2222" onClick={logout}>
-              Logout
-            </Item>
+            <Item onClick={logout}>Logout</Item>
           </ItemGroup>
         </SubMenu>
       )}
-      {user && user.role.includes('Instructor') && (
+
+      {user && user.role && user.role.includes('Instructor') && (
         <Item
           key="/instructor"
           onClick={(e) => setCurrent(e.key)}
           icon={<TeamOutlined />}
-          className="float-end"
+          className="float-right"
         >
           <Link href="/instructor">
             <a>Instructor</a>

@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { nanoid } from 'nanoid'
 import Course from '../models/course'
+import sllugify from 'slugify'
 import slugify from 'slugify'
 import { readFileSync } from 'fs'
 
@@ -54,11 +55,13 @@ export const uploadImage = async (req, res) => {
 export const removeImage = async (req, res) => {
   try {
     const { image } = req.body
+    // image params
     const params = {
       Bucket: image.Bucket,
       Key: image.Key,
     }
 
+    // send remove request to s3
     S3.deleteObject(params, (err, data) => {
       if (err) {
         console.log(err)
@@ -106,9 +109,12 @@ export const read = async (req, res) => {
 
 export const uploadVideo = async (req, res) => {
   try {
+    // console.log("req.user._id", req.user._id);
+    // console.log("req.params.instructorId", req.params.instructorId);
     if (req.auth._id != req.params.instructorId) {
       return res.status(400).send('Unauthorized')
     }
+
     const { video } = req.files
     // console.log(video);
     if (!video) return res.status(400).send('No video')
@@ -141,7 +147,9 @@ export const removeVideo = async (req, res) => {
     if (req.auth._id != req.params.instructorId) {
       return res.status(400).send('Unauthorized')
     }
+
     const { Bucket, Key } = req.body
+    // console.log("VIDEO REMOVE =====> ", req.body);
 
     // video params
     const params = {
@@ -149,7 +157,7 @@ export const removeVideo = async (req, res) => {
       Key,
     }
 
-    // delete from s3
+    // upload to s3
     S3.deleteObject(params, (err, data) => {
       if (err) {
         console.log(err)
@@ -165,7 +173,6 @@ export const removeVideo = async (req, res) => {
 
 export const addLesson = async (req, res) => {
   try {
-    console.log(req)
     const { slug, instructorId } = req.params
     const { title, content, video } = req.body
 
@@ -222,4 +229,84 @@ export const removeLesson = async (req, res) => {
   }).exec()
 
   res.json({ ok: true })
+}
+
+export const updateLesson = async (req, res) => {
+  try {
+    // console.log("UPDATE LESSON", req.body);
+    const { slug } = req.params
+    const { _id, title, content, video, free_preview } = req.body
+    const course = await Course.findOne({ slug }).select('instructor').exec()
+
+    if (course.instructor._id != req.auth._id) {
+      return res.status(400).send('Unauthorized')
+    }
+
+    const updated = await Course.updateOne(
+      { 'lessons._id': _id },
+      {
+        $set: {
+          'lessons.$.title': title,
+          'lessons.$.content': content,
+          'lessons.$.video': video,
+          'lessons.$.free_preview': free_preview,
+        },
+      },
+      { new: true }
+    ).exec()
+    // console.log("updated", updated);
+    res.json({ ok: true })
+  } catch (err) {
+    console.log(err)
+    return res.status(400).send('Update lesson failed')
+  }
+}
+
+export const publishCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const course = await Course.findById(courseId).select('instructor').exec()
+
+    if (course.instructor._id != req.auth._id) {
+      return res.status(400).send('Unauthorized')
+    }
+
+    const updated = await Course.findByIdAndUpdate(
+      courseId,
+      { published: true },
+      { new: true }
+    ).exec()
+    res.json(updated)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).send('Publish course failed')
+  }
+}
+
+export const unpublishCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const course = await Course.findById(courseId).select('instructor').exec()
+
+    if (course.instructor._id != req.auth._id) {
+      return res.status(400).send('Unauthorized')
+    }
+
+    const updated = await Course.findByIdAndUpdate(
+      courseId,
+      { published: false },
+      { new: true }
+    ).exec()
+    res.json(updated)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).send('Unpublish course failed')
+  }
+}
+
+export const courses = async (req, res) => {
+  const all = await Course.find({ published: true })
+    .populate('instructor', '_id name')
+    .exec()
+  res.json(all)
 }
