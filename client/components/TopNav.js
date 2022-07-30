@@ -45,7 +45,7 @@ const TopNav = () => {
         icon={<AppstoreOutlined />}
       >
         <Link href="/">
-          <a>App</a>
+          <a>FKLA</a>
         </Link>
       </Item>
 
